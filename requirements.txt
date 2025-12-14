@@ -1,0 +1,57 @@
+# Core Deep Learning
+torch>=2.0.0
+torchvision>=0.15.0
+onnxruntime-gpu>=1.15.0
+
+# Computer Vision
+opencv-python>=4.8.0
+opencv-contrib-python>=4.8.0
+mediapipe>=0.10.0
+insightface>=0.7.3
+
+# Object Detection & Tracking
+ultralytics>=8.0.0  # YOLOv8
+supervision>=0.16.0
+
+# Segmentation
+segment-anything @ git+https://github.com/facebookresearch/segment-anything.git
+groundingdino-py>=0.1.0
+
+# Generative AI
+diffusers>=0.25.0
+transformers>=4.35.0
+accelerate>=0.25.0
+safetensors>=0.4.0
+controlnet-aux>=0.0.7
+
+# Face Analysis & Animation
+facexlib>=0.3.0
+realesrgan>=0.3.0
+
+# Video Processing
+imageio>=2.31.0
+imageio-ffmpeg>=0.4.9
+moviepy>=1.0.3
+av>=10.0.0
+
+# Pose Estimation
+mmpose>=1.0.0
+mmcv>=2.0.0
+mmdet>=3.0.0
+
+# Utilities
+numpy>=1.24.0
+scipy>=1.11.0
+pillow>=10.0.0
+tqdm>=4.66.0
+pyyaml>=6.0
+omegaconf>=2.3.0
+einops>=0.7.0
+
+# Temporal Consistency
+ebsynth-python>=0.1.0  # Optional: for temporal coherence
+
+# Optional: Advanced models
+xformers>=0.0.22  # Memory efficient attention
+triton>=2.1.0  # GPU optimization
+

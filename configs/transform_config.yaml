@@ -1,0 +1,139 @@
+# Video Identity Transformation Configuration
+
+# Input/Output Settings
+input:
+  video_path: null  # Path to input video
+  start_frame: 0
+  end_frame: null  # null = process entire video
+  
+output:
+  output_path: "output/transformed_video.mp4"
+  fps: null  # null = use source video fps
+  resolution: null  # null = use source resolution, or [width, height]
+  codec: "libx264"
+  quality: "high"  # low, medium, high, ultra
+
+# Target Identity Settings
+targets:
+  # Method: 'reference_images' or 'text_descriptions'
+  method: "reference_images"
+  
+  # Reference images for each person (person_id: image_path)
+  reference_images:
+    person_0: "targets/person1.jpg"
+    person_1: "targets/person2.jpg"
+  
+  # Alternative: Text descriptions
+  text_descriptions:
+    person_0: "25 year old Asian woman with long black hair"
+    person_1: "40 year old Black man with short hair and beard"
+
+# Processing Settings
+processing:
+  # Quality vs Speed (affects all modules)
+  mode: "balanced"  # fast, balanced, high_quality
+  
+  # Batch processing
+  batch_size: 1  # Process N frames at once (requires more VRAM)
+  
+  # GPU settings
+  device: "cuda"  # cuda, cpu
+  mixed_precision: true  # Use FP16 for faster processing
+  
+  # Multi-GPU (if available)
+  multi_gpu: false
+  gpu_ids: [0]
+
+# Module-Specific Settings
+
+tracking:
+  model: "yolov8x"  # yolov8n, yolov8s, yolov8m, yolov8l, yolov8x
+  confidence_threshold: 0.5
+  iou_threshold: 0.7
+  tracker: "bytetrack"  # bytetrack, botsort
+  
+pose_estimation:
+  model: "rtmpose-l"  # rtmpose-m, rtmpose-l, rtmpose-x
+  body_model: "wholebody"  # body, wholebody (includes hands/face)
+  confidence_threshold: 0.3
+  
+facial_analysis:
+  landmark_model: "mediapipe"  # mediapipe, insightface
+  expression_tracking: true
+  lip_sync_precision: "high"  # low, medium, high
+  
+segmentation:
+  model: "sam_vit_h"  # sam_vit_b, sam_vit_l, sam_vit_h
+  refinement: true  # Edge refinement for better masks
+  temporal_consistency: true  # Smooth masks across frames
+  
+transformation:
+  # Base model for generation
+  base_model: "stable-diffusion-xl"  # sd-1.5, sd-2.1, sdxl
+  
+  # ControlNet settings
+  controlnets:
+    - type: "openpose"
+      weight: 1.0
+    - type: "canny"
+      weight: 0.5
+    - type: "depth"
+      weight: 0.3
+  
+  # Generation parameters
+  num_inference_steps: 30  # More steps = better quality, slower
+  guidance_scale: 7.5
+  
+  # Face-specific settings
+  face_restoration: true  # Use face enhancement models
+  face_restoration_model: "CodeFormer"  # CodeFormer, GFPGAN
+  
+  # Body consistency
+  body_coherence_weight: 0.8
+  
+compositing:
+  # Lighting and color matching
+  color_matching: true
+  lighting_adjustment: true
+  
+  # Shadow generation
+  generate_shadows: true
+  shadow_strength: 0.6
+  
+  # Blending
+  blend_mode: "poisson"  # alpha, poisson, multi_band
+  feather_edges: 5  # pixels
+  
+temporal:
+  # Temporal smoothing
+  enable: true
+  method: "optical_flow"  # optical_flow, ebsynth, none
+  
+  # Optical flow settings
+  flow_model: "raft"  # raft, gmflow
+  smoothing_window: 5  # frames
+  
+  # Consistency enforcement
+  feature_matching: true
+  color_propagation: true
+
+# Advanced Settings
+advanced:
+  # Memory optimization
+  enable_cpu_offload: false  # Offload models to CPU when not in use
+  enable_attention_slicing: true
+  enable_vae_slicing: true
+  
+  # Caching
+  cache_intermediate_results: true
+  cache_dir: "cache/"
+  
+  # Debugging
+  save_intermediate_frames: false
+  intermediate_output_dir: "debug/"
+  verbose: true
+  
+  # Performance monitoring
+  profile_performance: false
+  log_memory_usage: true
+
