@@ -8,10 +8,10 @@ set -e
 PROJECT="plotpointe"
 ZONE="us-central1-a"
 VM_NAME="video-transform-gpu"
-MACHINE_TYPE="n1-standard-8"  # 8 vCPUs, 30GB RAM
-GPU_TYPE="nvidia-l4"          # L4 is fast & cost-effective, use nvidia-tesla-t4 for cheaper
-GPU_COUNT=1
-DISK_SIZE="200GB"
+MACHINE_TYPE="n1-standard-16"  # 16 vCPUs, 60GB RAM (for 3 GPUs)
+GPU_TYPE="nvidia-l4"           # L4 24GB each
+GPU_COUNT=3                    # 3x L4 = 72GB total VRAM
+DISK_SIZE="500GB"              # More space for models + video
 IMAGE_FAMILY="pytorch-latest-gpu"
 IMAGE_PROJECT="deeplearning-platform-release"
 

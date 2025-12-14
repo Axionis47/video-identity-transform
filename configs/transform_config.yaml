@@ -32,17 +32,26 @@ targets:
 processing:
   # Quality vs Speed (affects all modules)
   mode: "balanced"  # fast, balanced, high_quality
-  
+
   # Batch processing
   batch_size: 1  # Process N frames at once (requires more VRAM)
-  
+
   # GPU settings
   device: "cuda"  # cuda, cpu
   mixed_precision: true  # Use FP16 for faster processing
-  
-  # Multi-GPU (if available)
-  multi_gpu: false
-  gpu_ids: [0]
+
+  # Multi-GPU Pipeline (3x L4 configuration)
+  multi_gpu: true
+  gpu_ids: [0, 1, 2]
+
+  # GPU Assignment for pipeline parallelism
+  gpu_assignment:
+    tracking: 0      # GPU 0: YOLOv8, detection
+    pose: 0          # GPU 0: MMPose, MediaPipe
+    segmentation: 0  # GPU 0: SAM
+    transformation: 1  # GPU 1: SDXL + ControlNets (heaviest)
+    face: 2          # GPU 2: InsightFace, CodeFormer
+    temporal: 2      # GPU 2: RAFT optical flow
 
 # Module-Specific Settings
 

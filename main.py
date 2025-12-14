@@ -42,41 +42,62 @@ class VideoIdentityTransformer:
             config = yaml.safe_load(f)
         return OmegaConf.create(config)
     
+    def _get_device(self, module_name: str) -> str:
+        """Get device for a specific module based on GPU assignment."""
+        if self.config.processing.get('multi_gpu', False):
+            gpu_assignment = self.config.processing.get('gpu_assignment', {})
+            gpu_id = gpu_assignment.get(module_name, 0)
+            return f"cuda:{gpu_id}"
+        return self.config.processing.device
+
     def _init_modules(self):
-        """Initialize all processing modules."""
+        """Initialize all processing modules with multi-GPU support."""
         print("Initializing modules...")
-        
+
+        # Check available GPUs
+        import torch
+        n_gpus = torch.cuda.device_count()
+        print(f"Available GPUs: {n_gpus}")
+        for i in range(n_gpus):
+            print(f"  GPU {i}: {torch.cuda.get_device_name(i)} ({torch.cuda.get_device_properties(i).total_memory // 1024**3}GB)")
+
+        # GPU 0: Tracking + Pose + Segmentation
+        print("\n[GPU 0] Loading tracking, pose, segmentation models...")
         self.tracker = MultiPersonTracker(
-            dict(self.config.get('tracking', {})) | 
-            {'device': self.config.processing.device}
+            dict(self.config.get('tracking', {})) |
+            {'device': self._get_device('tracking')}
         )
-        
+
         self.pose_extractor = PoseExpressionExtractor(
             dict(self.config.get('pose_estimation', {})) |
             dict(self.config.get('facial_analysis', {})) |
-            {'device': self.config.processing.device}
+            {'device': self._get_device('pose')}
         )
-        
+
         self.segmenter = PersonSegmenter(
             dict(self.config.get('segmentation', {})) |
-            {'device': self.config.processing.device}
+            {'device': self._get_device('segmentation')}
         )
-        
+
+        # GPU 1: Identity Transformation (heaviest - SDXL + ControlNets)
+        print("\n[GPU 1] Loading transformation models (SDXL + ControlNets)...")
         self.transformer = IdentityTransformer(
             dict(self.config.get('transformation', {})) |
-            {'device': self.config.processing.device}
+            {'device': self._get_device('transformation')}
         )
-        
+
+        # GPU 2: Face processing + Temporal consistency
+        print("\n[GPU 2] Loading face and temporal models...")
         self.compositor = SceneCompositor(
             dict(self.config.get('compositing', {}))
         )
-        
+
         self.temporal_processor = TemporalConsistencyProcessor(
             dict(self.config.get('temporal', {})) |
-            {'device': self.config.processing.device}
+            {'device': self._get_device('temporal')}
         )
-        
-        print("All modules initialized")
+
+        print("\n✓ All modules initialized across 3 GPUs")
         
     def load_target_identities(self, targets_config: dict):
         """Load target identities from configuration."""
