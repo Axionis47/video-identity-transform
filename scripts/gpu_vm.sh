@@ -49,7 +49,7 @@ setup_vm() {
     gcloud compute ssh $VM_NAME --zone=$ZONE --project=$PROJECT --command="
         # Clone repo and setup
         cd ~ && rm -rf video-transform
-        git clone https://github.com/namaste-world/video-identity-transform.git video-transform || true
+        git clone https://github.com/Axionis47/video-identity-transform.git video-transform || true
         cd video-transform
         
         # Install dependencies
